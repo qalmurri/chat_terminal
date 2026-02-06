@@ -1,8 +1,12 @@
-module anonchat
+module mager
 
 go 1.25.6
 
 require (
-	github.com/lib/pq v1.11.1 // indirect
-	github.com/yuin/gopher-lua v1.1.1 // indirect
+	github.com/mattn/go-sqlite3 v1.14.33
+	github.com/yuin/gopher-lua v1.1.1
+	golang.org/x/crypto v0.47.0
+	golang.org/x/term v0.39.0
 )
+
+require golang.org/x/sys v0.40.0 // indirect
