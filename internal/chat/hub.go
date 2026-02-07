@@ -10,6 +10,7 @@ import (
 type Client struct {
 	Nick    string
 	Channel ssh.Channel
+	MsgChan chan Message
 }
 
 type Hub struct {
@@ -22,8 +23,12 @@ type Hub struct {
 }
 
 type Message struct {
-	Room    string
-	Content string
+    Room    string
+    Content string
+    Type    string // "chat" atau "system"
+    Key     string // Contoh: "nick_change"
+    Params  string // Contoh: "OldNick|NewNick"
+    Sender *Client
 }
 
 type Registration struct {
@@ -61,21 +66,29 @@ func (h *Hub) Run() {
 					delete(h.Rooms, unreg.Room)
 					// Jalankan penghapusan DB di background
 					go func(name string) {
-						database.DeleteRoom(h.DB, roomName)
+						database.DeleteRoom(h.DB, name)
 					}(unreg.Room)
 				}
 			}
 			h.mu.Unlock()
 
 		case msg := <-h.Broadcast:
-			h.mu.Lock()
-			if clients, ok := h.Rooms[msg.Room]; ok {
-				for _, client := range clients {
-					client.Channel.Write([]byte(msg.Content + "\r\n"))
-				}
-			}
-			h.mu.Unlock()
-		}
+	            h.mu.Lock()
+	            if clients, ok := h.Rooms[msg.Room]; ok {
+	                for _, client := range clients {
+	                    // FILTER: Jangan kirim ke diri sendiri
+	                    if msg.Sender != nil && client == msg.Sender {
+	                        continue
+	                    }
+	
+	                    select {
+	                    case client.MsgChan <- msg:
+	                    default:
+	                    }
+	                }
+	            }
+	            h.mu.Unlock()
+	        }
 	}
 }
 

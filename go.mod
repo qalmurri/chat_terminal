@@ -3,6 +3,7 @@ module mager
 go 1.25.6
 
 require (
+	github.com/fsnotify/fsnotify v1.9.0
 	github.com/mattn/go-sqlite3 v1.14.33
 	github.com/yuin/gopher-lua v1.1.1
 	golang.org/x/crypto v0.47.0

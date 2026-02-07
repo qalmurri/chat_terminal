@@ -1,25 +1,22 @@
-print("\033[2J\033[H") -- Clear screen
-print("==========================================")
-print("      SELAMAT DATANG DI MAGER CHAT")
-print("==========================================")
-print("ID Anda   : [" .. uid .. "]")
-print("Nickname : " .. nickname)
-print("------------------------------------------")
-print("ROOMS YANG AKTIF:")
+dofile("scripts/locale.lua")
 
 local rooms = get_rooms()
+
+clear_screen()
+print(T("dash_title"))
+print(T("dash_line"))
+print(T("dash_header"))
+print(T("dash_line"))
+
 if #rooms == 0 then
-    print(" (Belum ada room aktif)")
+    print("  " .. T("dash_no_room"))
 else
-    for i, r in ipairs(rooms) do
-        print(i .. ". " .. r.name .. " (" .. r.count .. " user) - " .. r.desc)
+    for _, r in ipairs(rooms) do
+        local row = string.format("%-15s | %-20s | %-10d", r.name, r.desc, r.count)
+        print(row)
     end
 end
 
-print("------------------------------------------")
-print("COMMANDS:")
-print(" /join [nama]         - Masuk ke ruangan")
-print(" /create [nama] [des] - Buat ruangan baru")
-print(" /nick [nama_baru]    - Ganti nama")
-print(" /exit                - Keluar")
-print("==========================================")
+print(T("dash_line"))
+print(T("dash_instruction"))
+print("")

@@ -3,9 +3,9 @@ CREATE TABLE IF NOT EXISTS users (
     uid INTEGER UNIQUE NOT NULL,         -- ID Random untuk publik
     pubkey_fingerprint TEXT UNIQUE NOT NULL,
     nickname TEXT NOT NULL,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    language TEXT NULL
 );
-
 CREATE TABLE IF NOT EXISTS rooms (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT UNIQUE NOT NULL,

@@ -10,6 +10,7 @@ import (
 type User struct {
     UID  int
     Nick string
+    Language string
 }
 
 type Room struct {
@@ -29,7 +30,7 @@ func InitDB(path string) (*sql.DB, error) {
 
 func GetOrCreateUser(db *sql.DB, fingerprint string) (User, error) {
     var u User
-    err := db.QueryRow("SELECT uid, nickname FROM users WHERE pubkey_fingerprint = ?", fingerprint).Scan(&u.UID, &u.Nick)
+    err := db.QueryRow("SELECT uid, nickname, language FROM users WHERE pubkey_fingerprint = ?", fingerprint).Scan(&u.UID, &u.Nick, &u.Language)
     
     if err == sql.ErrNoRows {
         // Generate UID Random (1000 - 9999)
@@ -40,13 +41,13 @@ func GetOrCreateUser(db *sql.DB, fingerprint string) (User, error) {
         anonSuffix := fmt.Sprintf("%x", rand.Intn(0xffff))
         newNick := fmt.Sprintf("Anon-%s", anonSuffix)
 
-        _, err = db.Exec("INSERT INTO users (uid, pubkey_fingerprint, nickname) VALUES (?, ?, ?)", 
-            newUID, fingerprint, newNick)
+        _, err = db.Exec("INSERT INTO users (uid, pubkey_fingerprint, nickname, language) VALUES (?, ?, ?, ?)", 
+            newUID, fingerprint, newNick, "")
         
         if err != nil {
             return u, err
         }
-        return User{UID: newUID, Nick: newNick}, nil
+	return User{UID: newUID, Nick: newNick, Language: ""}, nil
     }
     return u, err
 }
@@ -94,5 +95,10 @@ func GetRoomOwner(db *sql.DB, roomName string) (int, error) {
 // Fungsi untuk update owner (Succession)
 func UpdateRoomOwner(db *sql.DB, roomName string, newOwnerUID int) error {
     _, err := db.Exec("UPDATE rooms SET owner_uid = ? WHERE name = ?", newOwnerUID, roomName)
+    return err
+}
+
+func UpdateUserLanguage(db *sql.DB, uid int, lang string) error {
+    _, err := db.Exec("UPDATE users SET language = ? WHERE uid = ?", lang, uid)
     return err
 }

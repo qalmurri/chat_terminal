@@ -1,0 +1,157 @@
+--dofile("scripts/locale.lua")
+--_G.pending_data = _G.pending_data or { name = nil, time = 0 }
+--function execute_create_room(name)
+--    local desc = "Room baru dibuat via konfirmasi"
+--    if create_room_db(name, desc) then
+--        print("Room '" .. name .. "' berhasil dibuat!")
+--        join_room(name)
+--        print("=== Memasuki Room: " .. name .. " ===")
+--    else
+--        print("Gagal membuat room. Nama mungkin sudah dipakai.")
+--    end
+--end
+--function OnInput(input)
+--    if input:sub(1,1) == "/" then
+--        handleCommand(input)
+--    else
+--        if current_room then
+--            broadcast(full_nick .. ": " .. input)
+--        else
+--            print(T("no_room"))
+--        end
+--    end
+--end
+--function handleCommand(input)
+--    local cmd, arg = input:match("^/(%w+)%s*(.*)")
+--    local now = os.time() 
+--    if cmd == "who" then
+--        local users = get_online()
+--        if users and #users > 0 then
+--            local list = ""
+--            for i, name in ipairs(users) do
+--                list = list .. name .. " "
+--            end
+--            print("User di room ini:" .. list)
+--        else
+--            print(T("else_who_title"))
+--        end
+--    elseif cmd == "nick" then
+--        local newName = arg
+--        if newName and #newName > 2 then
+--            local oldFullNick = full_nick 
+--            if set_nick(newName) then
+--                broadcast_system("nick_change", oldFullNick .. "|" .. full_nick)
+--                print(T("success_change_name"))
+--            else
+--                print("Gagal mengubah nama.")
+--            end
+--        else
+--            print("Nama minimal 3 karakter!")
+--        end
+--    elseif cmd == "create" then
+--        if not arg or arg == "" then
+--            print("Gunakan: /create [nama_room]")
+--            return
+--        end
+--        if current_room then
+--            -- Simpan ke Global
+--            _G.pending_data.name = arg
+--            _G.pending_data.time = now
+--            print("\n\033[33m[KONFIRMASI - 30 Detik]\033[0m")
+--            print(T("confirm_leave_to_create"))
+--            print("Ketik \033[32m/yes\033[0m atau \033[31m/no\033[0m")
+--        else
+--            execute_create_room(arg)
+--        end
+--    elseif cmd == "join" then
+--        if arg ~= "" then
+--            local success = join_room(arg)
+--            if success then
+--                clear_screen()
+--                print("=== " .. T("welcome") .. " " .. arg .. " ===")
+--                broadcast_system("join_msg", full_nick)
+--            else
+--                print("[ERROR] Room '" .. arg .. "' tidak ditemukan!")
+--            end
+--        end
+--    elseif cmd == "accept" then
+--	if current_room then
+--		if set_room_owner(current_room, uid) then
+--			print("Selamat! Anda sekarang adalah Owner dari room ini.")
+--			broadcast("[SYSTEM] " .. full_nick .. " mengambil alih jabatan Owner!")
+--		else
+--			print("Gagal mengambil alih jabatan.")
+--		end
+--	else
+--		print("Kamu harus berada di dalam room untuk menggunakan perintah ini.")
+--	end
+--    elseif cmd == "leave" then
+--        if current_room then
+--            broadcast_system("leave_msg", full_nick)
+--            if leave_room() then
+--                print("Anda telah kembali ke Dashboard.")
+--                dofile("scripts/dashboard.lua")
+--            end
+--        else
+--            print("Anda tidak sedang berada di dalam room.")
+--        end
+--    elseif cmd == "yes" then
+--        local data = _G.pending_data
+--        if data.name then
+--            local diff = now - data.time
+--            if diff <= 10 then
+--                local room_name = data.name
+--                data.name = nil -- Reset
+--                broadcast_system("leave_msg", full_nick)
+--                leave_room()
+--                execute_create_room(room_name)
+--            else
+--                data.name = nil
+--                print("[EXPIRED] " .. T("confirmation_expired"))
+--            end
+--        else
+--            print(T("nothing_to_confirm"))
+--        end
+--    elseif cmd == "no" then
+--        _G.pending_data.name = nil
+--        print(T("action_cancelled"))
+--    elseif cmd == "help" then
+--        print("\r\n\033[36m" .. T("help_title") .. "\033[0m")
+--        print("--------------------------------------------------")
+--        print(string.format("%-15s : %s", "/rooms", T("help_rooms")))
+--        print(string.format("%-15s : %s", "/join [name]", T("help_join")))
+--        print(string.format("%-15s : %s", "/create [name]", T("help_create")))
+--        print(string.format("%-15s : %s", "/nick [name]", T("help_nick")))
+--        print(string.format("%-15s : %s", "/who", T("help_who")))
+--        print(string.format("%-15s : %s", "/id / /en", T("help_lang")))
+--        print(string.format("%-15s : %s", "/leave", T("help_leave")))
+--        print(string.format("%-15s : %s", "/exit", T("help_exit")))
+--        print("--------------------------------------------------\r\n")
+--    elseif cmd == "exit" then
+--        print(T("exit"))
+--        exit_session()
+--    elseif cmd == "id" then
+--        if set_language("id") then
+--            user_lang = "id"
+--            dofile("scripts/dashboard.lua")
+--        end
+--    elseif cmd == "en" then
+--        if set_language("en") then
+--            user_lang = "en"
+--            dofile("scripts/dashboard.lua")
+--        end
+--    elseif cmd == "rooms" then
+--        dofile("scripts/dashboard.lua")
+--    else
+--        print("Perintah /" .. (cmd or "unknown") .. " tidak ditemukan.")
+--    end
+--end
+--function OnMessageReceived(msg)
+--    print("DEBUG: Lua nerima -> " .. tostring(msg))
+--    if msg:find("__SYSTEM__") then
+--        local formatted = ParseSystemMessage(msg)
+--        print(formatted)
+--    else
+--        print(msg)
+--    end
+--end
